@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  /* --- Tema Claro (Padrão) --- */
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  --sidebar: #f3f4f6;
+  --sidebar-hover: #e5e7eb;
+  
+  --border: #e5e7eb;
+  
+  --input-bg: #ffffff;
+  --input-ring: #9ca3af;
+  
+  --muted: #6b7280;
+  --chat-bg: #f9fafb;
+  --chat-header: #f3f4f6;
+  --chat-hover: #e5e7eb;
+}
+
+/* --- Tema Escuro (Ativado via classe .dark) --- */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  
+  --sidebar: #121212;
+  --sidebar-hover: #1f2937;
+  
+  --border: #1f2937;
+  
+  --input-bg: #1f1f1f;
+  --input-ring: #4b5563;
+  
+  --muted: #9ca3af;
+  --chat-bg: #1e1e1e;
+  --chat-header: #252525;
+  --chat-hover: #2a2a2a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-border: var(--border);
+  --color-input-bg: var(--input-bg);
+  --color-input-ring: var(--input-ring);
+  --color-muted: var(--muted);
+  --color-chat-bg: var(--chat-bg);
+  --color-chat-header: var(--chat-header);
+  --color-chat-hover: var(--chat-hover);
+  
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
