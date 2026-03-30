@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// O ValueNotifier guarda o estado (Dark ou Light) e avisa quem estiver "ouvindo"
+ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
+
 void main() {
   runApp(const IPartyApp());
 }
@@ -10,15 +13,37 @@ class IPartyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'iParty Dashboard',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF191919),
-        useMaterial3: true,
-      ),
-      home: const IPartyDashboardPage(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (_, ThemeMode currentMode, __) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'iParty Dashboard',
+          themeMode: currentMode, // Usa o modo atual (Light ou Dark)
+          // Configuração do Tema Claro
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primaryColor: const Color(0xFFFF007F),
+            scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+            dividerColor: Colors.grey[300],
+            cardColor:
+                Colors.white, // Usado para fundos de containers no modo claro
+          ),
+
+          // Configuração do Tema Escuro
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            primaryColor: const Color(0xFFFF007F),
+            scaffoldBackgroundColor: const Color(0xFF131416),
+            dividerColor: Colors.grey[900],
+            cardColor: const Color(
+              0xFF20232A,
+            ), // Usado para fundos de containers no modo escuro
+          ),
+
+          home: const IPartyDashboardPage(),
+        );
+      },
     );
   }
 }
@@ -37,7 +62,11 @@ class IPartyDashboardPage extends StatelessWidget {
           const SidebarWidget(),
 
           // Linha divisória vertical
-          VerticalDivider(color: Colors.grey[800], width: 1, thickness: 1),
+          VerticalDivider(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+            thickness: 1,
+          ),
 
           //Conteúdo Principal
           Expanded(
@@ -73,88 +102,200 @@ class SidebarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Cores dinâmicas baseadas no tema
+    final Color bgColor = isDark ? const Color(0xFF131416) : Colors.white;
+    final Color textColor = isDark ? Colors.white : Colors.black87;
+    const Color logoPink = Color(0xFFFF007F);
+    final Color iconBgColor = isDark
+        ? const Color(0xFF20232A)
+        : Colors.grey[200]!;
+
     return Container(
-      width: 250,
-      color: const Color(0xFF191919),
-      padding: const EdgeInsets.all(20),
+      width: 280,
+      color: bgColor,
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // iParty
           Row(
             children: [
-              //logo
               Container(
-                width: 40,
-                height: 40,
+                width: 42,
+                height: 42,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFF007F),
+                  color: logoPink,
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 12),
-              // Texto
-              const Text(
+              const SizedBox(width: 15),
+              Text(
                 'iParty',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: textColor,
+                  letterSpacing: 0.5,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 30),
+
+          const SizedBox(height: 15),
+          Divider(color: Theme.of(context).dividerColor, thickness: 1),
+          const SizedBox(height: 15),
+
           // itens de navegação
           Expanded(
-            child: ListView.separated(
-              itemCount: 6, // Número de itens
-              separatorBuilder: (ctx, index) => const SizedBox(height: 15),
-              itemBuilder: (context, index) {
-                return const SidebarNavItem(title: 'Item');
-              },
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                // _SidebarNavItem para cada item
+                _SidebarNavItem(
+                  icon: Icons.home_outlined,
+                  title: 'Início',
+                  backgroundColor: iconBgColor,
+                ),
+                const SizedBox(height: 12),
+                _SidebarNavItem(
+                  icon: Icons.explore_outlined,
+                  title: 'Explorar',
+                  backgroundColor: iconBgColor,
+                ),
+                const SizedBox(height: 12),
+                _SidebarNavItem(
+                  icon: Icons.calendar_today_outlined,
+                  title: 'Eventos',
+                  backgroundColor: iconBgColor,
+                ),
+                const SizedBox(height: 12),
+                _SidebarNavItem(
+                  icon: Icons.confirmation_number_outlined,
+                  title: 'Ingressos',
+                  backgroundColor: iconBgColor,
+                ),
+                const SizedBox(height: 12),
+                _SidebarNavItem(
+                  icon: Icons.bookmark_border_outlined,
+                  title: 'Favoritos',
+                  backgroundColor: iconBgColor,
+                ),
+                const SizedBox(height: 12),
+                _SidebarNavItem(
+                  icon: Icons.settings_outlined,
+                  title: 'Configurações',
+                  backgroundColor: iconBgColor,
+                ),
+              ],
             ),
           ),
+
           // botao de thema
-          const Padding(
-            padding: EdgeInsets.only(bottom: 20),
-            child: SidebarNavItem(title: 'Item'),
+          Divider(color: Theme.of(context).dividerColor),
+          const SizedBox(height: 15),
+
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: themeNotifier,
+            builder: (context, currentMode, _) {
+              final bool isLight = currentMode == ThemeMode.light;
+              return InkWell(
+                onTap: () {
+                  // Lógica de Alternância:
+                  // Se estiver Dark, vira Light. Se estiver Light, vira Dark.
+                  themeNotifier.value = isLight
+                      ? ThemeMode.dark
+                      : ThemeMode.light;
+                },
+                borderRadius: BorderRadius.circular(10),
+                hoverColor: isLight ? Colors.black12 : Colors.white10,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      // O ícone muda dinamicamente conforme o tema
+                      Icon(
+                        isLight
+                            ? Icons.dark_mode_outlined
+                            : Icons.wb_sunny_outlined,
+                        color: isLight ? Colors.black87 : Colors.white,
+                      ),
+                      const SizedBox(width: 15),
+                      Text(
+                        isLight ? 'Modo Escuro' : 'Modo Claro',
+                        style: TextStyle(
+                          color: isLight ? Colors.black87 : Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
+          const SizedBox(height: 10),
         ],
       ),
     );
   }
 }
 
-/// [SidebarNavItem] representa um único item clicável na barra lateral.
-class SidebarNavItem extends StatelessWidget {
+/// [_SidebarNavItem] é um widget auxiliar privado para renderizar cada item de navegação.
+class _SidebarNavItem extends StatelessWidget {
+  final IconData icon;
   final String title;
+  final Color backgroundColor;
 
-  const SidebarNavItem({super.key, required this.title});
+  const _SidebarNavItem({
+    required this.icon,
+    required this.title,
+    required this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                shape: BoxShape.circle,
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(12),
+        hoverColor: isDark
+            ? Colors.white.withOpacity(0.05)
+            : Colors.black.withOpacity(0.05),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          child: Row(
+            children: [
+              // Círculo de fundo para o ícone
+              Container(
+                width: 45,
+                height: 45,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                  size: 24,
+                ),
               ),
-            ),
-            const SizedBox(width: 15),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ],
+              const SizedBox(width: 15),
+              // Título do Item
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -167,9 +308,11 @@ class TopHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      color: const Color(0xFF191919),
+      color: isDark ? const Color(0xFF131416) : Colors.white,
       child: Row(
         children: [
           // Barra de Pesquisa
@@ -181,7 +324,7 @@ class TopHeaderWidget extends StatelessWidget {
                   width: 400,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF333333),
+                    color: isDark ? const Color(0xFF333333) : Colors.grey[200],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -197,7 +340,9 @@ class TopHeaderWidget extends StatelessWidget {
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                           ),
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
                         ),
                       ),
                     ],
@@ -209,20 +354,21 @@ class TopHeaderWidget extends StatelessWidget {
           // Ícones cabeçalho
           Row(
             children: [
-              // Ícone de Home
-              const Icon(Icons.home, color: Colors.white),
+              Icon(Icons.home, color: isDark ? Colors.white : Colors.black87),
               const SizedBox(width: 20),
-              // Ícone de Notificações
               Stack(
                 children: [
-                  const Icon(Icons.notifications, color: Colors.white),
+                  Icon(
+                    Icons.notifications,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   Positioned(
                     right: 0,
                     top: 0,
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFF007F), // Rosa vibrante do Badge
+                        color: Color(0xFFFF007F),
                         shape: BoxShape.circle,
                       ),
                       constraints: const BoxConstraints(
@@ -243,7 +389,6 @@ class TopHeaderWidget extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 20),
-              // Ícone de Perfil
               CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.grey[400],
@@ -263,33 +408,36 @@ class ChatOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: 250,
       height: 300,
       decoration: BoxDecoration(
-        color: const Color(0xFF262626),
+        color: isDark ? const Color(0xFF262626) : Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
         ],
+        border: isDark ? null : Border.all(color: Colors.grey[300]!),
       ),
       padding: const EdgeInsets.all(15),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Chat Adm',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 10),
-          const Divider(color: Colors.grey),
+          Divider(color: Theme.of(context).dividerColor),
           const SizedBox(height: 10),
           Expanded(
             child: ListView(
@@ -320,11 +468,12 @@ class ChatListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // contato com um ponto online
           Stack(
             children: [
               CircleAvatar(
@@ -347,24 +496,22 @@ class ChatListItem extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 12),
-          // Informações do contato
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
                 Text(
                   lastMessage,
                   style: const TextStyle(color: Colors.grey, fontSize: 14),
-                  overflow:
-                      TextOverflow.ellipsis, // Corta o texto se  muito longo
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
