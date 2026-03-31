@@ -15,7 +15,7 @@ class IPartyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
-      builder: (_, ThemeMode currentMode, __) {
+      builder: (_, ThemeMode currentMode, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'iParty Dashboard',
@@ -264,8 +264,8 @@ class _SidebarNavItem extends StatelessWidget {
         onTap: () {},
         borderRadius: BorderRadius.circular(12),
         hoverColor: isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.black.withOpacity(0.05),
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.05),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
           child: Row(
@@ -318,30 +318,34 @@ class TopHeaderWidget extends StatelessWidget {
           // Barra de Pesquisa
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center, 
               children: [
                 Container(
-                  width: 400,
-                  height: 40,
+                  width: 500,
+                  height: 55,
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF333333) : Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(28),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center, 
                     children: [
+                      const SizedBox(width: 20),
+                      const Icon(Icons.search, color: Colors.grey, size: 30),
                       const SizedBox(width: 15),
-                      const Icon(Icons.search, color: Colors.grey),
-                      const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
+                          textAlignVertical: TextAlignVertical.center, 
                           decoration: const InputDecoration(
                             hintText: 'Pesquisar por eventos próximos',
-                            hintStyle: TextStyle(color: Colors.grey),
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
+                            isCollapsed: true, 
+                            contentPadding: EdgeInsets.zero, 
                           ),
                           style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black87,
+                            color: isDark ? Colors.white : Colors.black87, 
+                            fontSize: 18,
                           ),
                         ),
                       ),
@@ -354,13 +358,13 @@ class TopHeaderWidget extends StatelessWidget {
           // Ícones cabeçalho
           Row(
             children: [
-              Icon(Icons.home, color: isDark ? Colors.white : Colors.black87),
-              const SizedBox(width: 20),
+              Icon(Icons.home, color: isDark ? Colors.white : Colors.black87, size: 30),
+              const SizedBox(width: 25),
               Stack(
                 children: [
                   Icon(
                     Icons.notifications,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: isDark ? Colors.white : Colors.black87, size: 30,
                   ),
                   Positioned(
                     right: 0,
@@ -372,14 +376,14 @@ class TopHeaderWidget extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       constraints: const BoxConstraints(
-                        minWidth: 14,
-                        minHeight: 14,
+                        minWidth: 15,
+                        minHeight: 15,
                       ),
                       child: const Text(
                         '5',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 9,
+                          fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -390,9 +394,9 @@ class TopHeaderWidget extends StatelessWidget {
               ),
               const SizedBox(width: 20),
               CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.grey[400],
-                child: const Icon(Icons.person, color: Colors.white, size: 20),
+                radius: 22,
+                backgroundColor: Colors.grey[600],
+                child: const Icon(Icons.person, color: Colors.white, size: 30),
               ),
             ],
           ),
